@@ -11,6 +11,7 @@
       currentClass: "mtbv-is-current",
       completedClass: "mtbv-is-completed",
       lastCompletedClass: "mtbv-is-last-completed",
+      useNavigatedViewer: false,
       enableExpandModule: true
     },
     _create: function() {
@@ -28,12 +29,14 @@
       if ( this.options.enableExpandModule ) {
         this.enabledModules.push( bpmnViewer.customModules.spViewModule );
       }
-      this.bpmnViewer$ = new bpmnViewer.BpmnJS({ container: '#' + this.canvasId, additionalModules: this.enabledModules });
+      if ( this.options.useNavigatedViewer ) {
+        this.bpmnViewer$ = new bpmnViewer.BpmnJSNavigated({ container: '#' + this.canvasId, additionalModules: this.enabledModules });
+      } else {
+        this.bpmnViewer$ = new bpmnViewer.BpmnJS({ container: '#' + this.canvasId, additionalModules: this.enabledModules });
+      }
       if ( this.options.refreshOnLoad ) {
         this.refresh();
       }
-//      this.eventBus$   = this.bpmnViewer$.get('eventBus');
-//      this.eventBus$.on( 'element.click', (e) => { alert( "Clicked on " + e.element.id ); } );
       region.create( this.regionId, {
         widget: () => { return this.element; },
         refresh: () => { this.refresh(); },
@@ -41,6 +44,7 @@
         loadDiagram: () => { this.loadDiagram(); },
         addMarkers: () => { this.addMarkers(); },
         getViewerInstance: () => { return this.bpmnViewer$; },
+        getEventBus: () => { return this.bpmnViewer$.get('eventBus'); },
         widgetName: "bpmnviewer",
         type: "mtag.bpmnviewer"
       });

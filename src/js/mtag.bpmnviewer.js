@@ -96,14 +96,17 @@ var bpmnViewer =
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var bpmn_js_lib_NavigatedViewer__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! bpmn-js/lib/NavigatedViewer */ "./node_modules/bpmn-js/lib/NavigatedViewer.js");
-/* harmony import */ var _lib_spViewModule__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./lib/spViewModule */ "./lib/spViewModule/index.js");
+/* harmony import */ var bpmn_js_lib_Viewer__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! bpmn-js/lib/Viewer */ "./node_modules/bpmn-js/lib/Viewer.js");
+/* harmony import */ var bpmn_js_lib_NavigatedViewer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! bpmn-js/lib/NavigatedViewer */ "./node_modules/bpmn-js/lib/NavigatedViewer.js");
+/* harmony import */ var _lib_spViewModule__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./lib/spViewModule */ "./lib/spViewModule/index.js");
+
 
 
 
 bpmnViewer = {
-  BpmnJS: bpmn_js_lib_NavigatedViewer__WEBPACK_IMPORTED_MODULE_0__["default"],
-  customModules: { spViewModule: _lib_spViewModule__WEBPACK_IMPORTED_MODULE_1__["default"] }
+  BpmnJS: bpmn_js_lib_Viewer__WEBPACK_IMPORTED_MODULE_0__["default"],
+  BpmnJSNavigated: bpmn_js_lib_NavigatedViewer__WEBPACK_IMPORTED_MODULE_1__["default"],
+  customModules: { spViewModule: _lib_spViewModule__WEBPACK_IMPORTED_MODULE_2__["default"] }
 };
 
 /* harmony default export */ __webpack_exports__["default"] = (bpmnViewer);
@@ -142,6 +145,8 @@ __webpack_require__.r(__webpack_exports__);
 		var originalHeight;
 		var originalX = 0;
 		var originalY = 0;
+
+		var hiddenElements;
 
 		function setProcessTextStyle(parentProcess, textStyle) {
 			var previousStyle;
@@ -229,7 +234,7 @@ __webpack_require__.r(__webpack_exports__);
 										var height = parseInt(rectElement.getAttribute("height"), 10) * 2;
 		
 										if (parseInt(result[4], 10) < minX) {
-											minX = parseInt(result[4]);
+											minX = parseInt(result[4], 10);
 											}	
 										if (parseInt(result[5], 10) < minY) {
 											minY = parseInt(result[5], 10);
@@ -353,7 +358,7 @@ __webpack_require__.r(__webpack_exports__);
 									var djsChildrenGroupElements = djsChildrenElement.getElementsByClassName('djs-group');
 										Array.from(djsChildrenGroupElements).forEach(djsChildrenGroupElement => { 
 											subElementWithParent.subProcs.push(djsChildrenGroupElement);
-										})
+										});
 								});	
 							}
 						}
@@ -363,10 +368,60 @@ __webpack_require__.r(__webpack_exports__);
 			return subElementWithParent;
 		}
 
+		function getAllElementsInRect(left, right, top, bottom) {
+			var elementsInRect = new Array();
+			var layerElements = document.getElementsByClassName("layer-base");
+			Array.from(layerElements[0].children).forEach(layerElement => {
+				if(layerElement.children.length != 0) {
+					var transform = layerElement.children[0].getAttribute("transform");
+					if(transform) {
+						var matrix = parseMatrix(transform);
+						if(matrix.length >= 6) {
+							var x = parseInt(matrix[4], 10);
+							var y = parseInt(matrix[5], 10);
+							if (((x >= left) && (x <= right)) || ((y >= top) && (y <= bottom))) {
+								var elementID = layerElement.children[0].getAttribute("data-element-id")
+								if(elementID.includes("TextAnnotation") || elementID.includes("Association") || elementID.includes("label")) {
+									elementsInRect.push(layerElement.children[0]);
+								}
+							}
+						}
+					}
+					else {
+						if(layerElement.children[0].length != 0) {
+							var rectElement = layerElement.children[0].getElementsByTagName("rect");
+							if(rectElement.length != 0) {
+								var x = parseInt(rectElement[0].getAttribute("x"), 10);
+								var y = parseInt(rectElement[0].getAttribute("y"), 10);
+								if (((x >= left) && (x <= right)) || ((y >= top) && (y <= bottom))) {
+									var elementID = layerElement.children[0].getAttribute("data-element-id")
+									if(elementID.includes("Association")) {
+										elementsInRect.push(layerElement.children[0]);
+									}
+								}
+							}
+						}
+					}
+				}
+			});
+			return elementsInRect;
+		}
+
 		eventBus.on('element.click', function(event) {
 			if (event.element.type == "bpmn:SubProcess") {
 				var subElements = getSubProcessElements(event.element.id);
 				var testBounds = calculateCorrectBounds(subElements);
+
+				var transform = subElements.parentElement.children[0].getAttribute("transform");
+				if(transform) {
+					var matrix = parseMatrix(transform);
+					if(matrix.length >= 6) {
+						var x = parseInt(matrix[4], 10) + testBounds.x;
+						var y = parseInt(matrix[5], 10) + testBounds.y;
+						hiddenElements = getAllElementsInRect(x, x + testBounds.width, y, y + testBounds.height);
+					}
+				}
+
 				if (subElements.subProcs != 0) {
 					if (!isExpanded) {
 						getOriginalBounds(subElements);
@@ -379,6 +434,12 @@ __webpack_require__.r(__webpack_exports__);
 						subElements.subProcs.forEach(subElement => {
 							subElement.lastElementChild.setAttribute("style", "display: block;");
 						});
+
+						if(hiddenElements != 0) {
+							hiddenElements.forEach(hiddenElement => {
+								hiddenElement.setAttribute("style", "display: none;");
+							});
+						}
 					}
 					else if (currentExpandedProcess == subElements.parentElement){
 						subElements.subProcs.forEach(subElement => {
@@ -389,6 +450,12 @@ __webpack_require__.r(__webpack_exports__);
 						setProcessTextStyle(subElements.parentElement, previousTextStyle);
 						setProcessIconStyle(subElements.parentElement, previousIconStyle);
 						setProcessIconRect(subElements.parentElement, previousRectStyle);
+
+						if(hiddenElements != 0) {
+							hiddenElements.forEach(hiddenElement => {
+								hiddenElement.setAttribute("style", "display: block;");
+							});
+						}
 					}
 				}
 			}
@@ -396,6 +463,7 @@ __webpack_require__.r(__webpack_exports__);
 	}
 	
 	/* harmony default export */ __webpack_exports__["default"] = (spViewModule);
+
 
 /***/ }),
 
