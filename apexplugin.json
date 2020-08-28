@@ -2,7 +2,7 @@
   "name" : "MTAG APEX BPMN-Viewer",
   "version" : "4.0",
   "description" : "Region Plugin for Oracle Application Express to display BPMN Diagrams. Developed by MT AG, commercial support available.",
-  "keywords" : ["BPMN", "Workflow", "business process"],
+  "keywords" : ["BPMN", "Workflow", "Business Process"],
   "homepage" : "https://github.com/mt-ag/apex-bpmnviewer",
   "license" : "MIT",
   "commercial" : "No",
@@ -22,7 +22,7 @@
     "url" : "https://github.com/mt-ag/apex-bpmnviewer.git"
   },
   "oracle" : {
-    "versions" : ["12.1.0.1", "12.2.0.1", "18", "19"],
+    "versions" : ["12.1.0.1", "12.2.0.1", "18.0.0.0", "19.0.0.0"],
     "apex" : {
       "versions" : ["20.1.0"],
       "plugin" : {
