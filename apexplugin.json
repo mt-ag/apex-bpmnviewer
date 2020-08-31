@@ -27,7 +27,7 @@
       "versions" : ["20.1.0"],
       "plugin" : {
         "internalName" : "COM.MTAG.APEX.BPMNVIEWER.REGION",
-        "type" : "Region",
+        "type" : "region",
         "demo" : "https://apex.oracle.com/pls/apex/mt_flows/r/flowsforapex",
         "previewImage" : "https://raw.githubusercontent.com/mt-ag/apex-bpmnviewer/master/flowsforapex_small.png"
       }
