@@ -1,10 +1,25 @@
 # MTAG APEX BPMN-Viewer #
 
-Region Plugin for Oracle Application Express to display BPMN Diagrams.
+Region Plug-In for Oracle Application Express to display BPMN Diagrams.
 
 ## Purpose ##
 
-Display a BPMN diagram based on XML pulled from any valid region source.
+Display a BPMN diagram based on XML pulled from any valid region source.  
+Includes various options to visually highlight process state.  
+Also allows switching between simple viewer or navigated viewer.
+
+## Free Plug-In ##
+
+This Plugin is released under MIT license, which means it is free to use in commercial or private projects.  
+
+## Support available ##
+
+Commercial support is available via our [Online APEX Support](https://apex.mt-ag.com/support).
+
+## Demo ##
+
+A demo of this Plug-In is available in the [Flows for APEX Demo](https://apex.oracle.com/pls/apex/mt_flows/r/flowsforapex).  
+This demo includes the BPMN Modeler, the Flows for APEX engine and this Plug-In.
 
 ## Standard Installation ##
 
