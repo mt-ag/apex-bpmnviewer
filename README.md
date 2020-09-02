@@ -19,7 +19,8 @@ Commercial support is available via our [Online APEX Support](https://apex.mt-ag
 ## Demo ##
 
 A demo of this Plug-In is available in the [Order Shipment Demo Application](https://apex.oracle.com/pls/apex/mt_flows/r/flowsforapexdemo).  
-If you also want to model processes have a look at the [Flows for APEX](https://apex.mt-ag.com/flowsforapex).
+The Order Shipment Demo Application is available for download as part of [Flows for APEX](https://apex.mt-ag.com/flowsforapex).  
+Flows for APEX enables you to also model your processes and includes a runtime engine for BPMN based flows.
 
 ## Installation ##
 
