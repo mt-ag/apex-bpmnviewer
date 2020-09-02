@@ -18,14 +18,16 @@ Commercial support is available via our [Online APEX Support](https://apex.mt-ag
 
 ## Demo ##
 
-A demo of this Plug-In is available in the [Flows for APEX Demo](https://apex.oracle.com/pls/apex/mt_flows/r/flowsforapex).  
-This demo includes the BPMN Modeler, the Flows for APEX engine and this Plug-In.
+A demo of this Plug-In is available in the [Order Shipment Demo Application](https://apex.oracle.com/pls/apex/mt_flows/r/flowsforapexdemo).  
+If you also want to model processes have a look at the [Flows for APEX](https://apex.mt-ag.com/flowsforapex).
 
-## Standard Installation ##
+## Installation ##
+
+### Standard ###
 
 Import the plugin file `region_type_plugin_com_mtag_apex_bpmnviewer_region.sql` into your application.
 
-## Advanced Installation ##
+### Advanced ###
 
 1. Import the plugin file `region_type_plugin_com_mtag_apex_bpmnviewer_region.sql` into your application.
 2. Deploy the files found in the `src/css` and `src/js` folders to your Webserver.
