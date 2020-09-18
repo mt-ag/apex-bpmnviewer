@@ -1,6 +1,6 @@
 /* global apex, BpmnJS */
 
-(function( $, region ){
+(function( $, region, event ){
 
   $.widget( "mtag.bpmnviewer", {
     options: {
@@ -24,19 +24,20 @@
         "</bpmndi:BPMNDiagram>" +
         "</bpmn:definitions>";
       this.regionId    = this.element[0].id;
-      this.canvasId    = this.regionId + '_canvas';
+      this.canvasId    = this.regionId + "_canvas";
       this.enabledModules = [];
       if ( this.options.enableExpandModule ) {
         this.enabledModules.push( bpmnViewer.customModules.spViewModule );
       }
       if ( this.options.useNavigatedViewer ) {
-        this.bpmnViewer$ = new bpmnViewer.BpmnJSNavigated({ container: '#' + this.canvasId, additionalModules: this.enabledModules });
+        this.bpmnViewer$ = new bpmnViewer.BpmnJSNavigated({ container: "#" + this.canvasId, additionalModules: this.enabledModules });
       } else {
-        this.bpmnViewer$ = new bpmnViewer.BpmnJS({ container: '#' + this.canvasId, additionalModules: this.enabledModules });
+        this.bpmnViewer$ = new bpmnViewer.BpmnJS({ container: "#" + this.canvasId, additionalModules: this.enabledModules });
       }
       if ( this.options.refreshOnLoad ) {
         this.refresh();
       }
+      this._registerEvents();
       region.create( this.regionId, {
         widget: () => { return this.element; },
         refresh: () => { this.refresh(); },
@@ -44,7 +45,7 @@
         loadDiagram: () => { this.loadDiagram(); },
         addMarkers: () => { this.addMarkers(); },
         getViewerInstance: () => { return this.bpmnViewer$; },
-        getEventBus: () => { return this.bpmnViewer$.get('eventBus'); },
+        getEventBus: () => { return this.bpmnViewer$.get( "eventBus" ); },
         widgetName: "bpmnviewer",
         type: "mtag.bpmnviewer"
       });
@@ -56,7 +57,10 @@
       try {
         const result = await bpmnViewer$.importXML( this.diagram || this._defaultXml );
         const { warnings } = result;
-        apex.debug.warn( "Warnings during XML Import", warnings );
+        
+        if ( warnings.length > 0 ) {
+          apex.debug.warn( "Warnings during XML Import", warnings );
+        }
 
         this.zoom( "fit-viewport" );
         this.addMarkers( this.current, this.options.currentClass );
@@ -81,9 +85,6 @@
     zoom: function( zoomOption ) {
       this.bpmnViewer$.get( "canvas" ).zoom( zoomOption );
     },
-    expandElement: function( element ) {
-      // TODO: implement
-    },
     refresh: function() {
       apex.debug.info( "Enter Refresh", this.options );
       apex.server.plugin( this.options.ajaxIdentifier, {
@@ -104,9 +105,23 @@
         }
       });
     },
-    reset: function() {
+    _registerEvents: function() {
+      const capturedEvents = [
+        "element.hover",
+        "element.out",
+        "element.click",
+        "element.dblclick",
+        "element.mousedown",
+        "element.mouseup"
+      ];
 
+      let eventBus = this.bpmnViewer$.get( "eventBus" );
+      capturedEvents.forEach( currentEvent => {
+        eventBus.on( currentEvent, eventData => {
+          event.trigger( "#" + this.regionId, "mtbv_" + currentEvent.replace(".", "_"), eventData );
+        });
+      });
     }
   })
 
-})( apex.jQuery, apex.region );
+})( apex.jQuery, apex.region, apex.event );
